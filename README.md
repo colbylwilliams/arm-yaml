@@ -6,7 +6,7 @@
 
 Made with :heart: by [Colby Williams](https://github.com/colbylwilliams) & [Michael Williams](https://github.com/flusharcade)
 
-### Third-party Code ❤️
+### Third-party Code
 - [js-yaml](https://github.com/nodeca/js-yaml)
 
 ### License
