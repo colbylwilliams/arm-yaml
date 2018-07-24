@@ -1,29 +1,75 @@
-'use strict';
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 import * as vscode from 'vscode';
+const yaml = require('js-yaml');
 
-// this method is called when your extension is activated
-// your extension is activated the very first time the command is executed
-export function activate(context: vscode.ExtensionContext) {
-
-    // Use the console to output diagnostic information (console.log) and errors (console.error)
-    // This line of code will only be executed once when your extension is activated
-    console.log('Congratulations, your extension "arm-yaml" is now active!');
-
-    // The command has been defined in the package.json file
-    // Now provide the implementation of the command with  registerCommand
-    // The commandId parameter must match the command field in package.json
-    let disposable = vscode.commands.registerCommand('extension.sayHello', () => {
-        // The code you place here will be executed every time your command is executed
-
-        // Display a message box to the user
-        vscode.window.showInformationMessage('Hello World!');
-    });
-
-    context.subscriptions.push(disposable);
+function getIndent() {
+  const editorCfg = vscode.workspace.getConfiguration('editor');
+  if (editorCfg && editorCfg.get('insertSpaces')) {
+    const tabSize = editorCfg.get('tabSize');
+    if (tabSize && typeof tabSize === 'number') {
+      return tabSize;
+    }
+  }
+  return 2;
 }
 
-// this method is called when your extension is deactivated
+function convertSelection(conversionFn) {
+  return () => {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+      return;
+    }
+    editor.edit(edit => {
+      let textRange;
+      if (!editor.selection.isEmpty) {
+        textRange = new vscode.Range(editor.selection.start, editor.selection.end);
+      }
+      const text = editor.document.getText(textRange);
+      const newText = conversionFn(text);
+      if (newText) {
+        if (!textRange) {
+          textRange = new vscode.Range(
+            editor.document.positionAt(0),
+            editor.document.positionAt(text.length)
+          );
+        }
+        edit.replace(textRange, newText);
+      }
+    });  
+  }
+}
+
+export function toYAML(text) {
+  let json;
+  try {
+    json = JSON.parse(text);
+  } catch (e) {
+    vscode.window.showErrorMessage('Could not parse the selection as JSON.');
+    console.error(e);
+    return;
+  }
+  return yaml.safeDump(json, {indent: getIndent()});
+}
+
+export function toJSON(text) {
+  let json;
+  try {
+    json = yaml.safeLoad(text, {schema: yaml.JSON_SCHEMA})
+  } catch (e) {
+    vscode.window.showErrorMessage('Could not parse the selection as YAML.');
+    console.error(e);
+    return;
+  }
+  return JSON.stringify(json, null, getIndent());
+}
+
+export function activate(context: vscode.ExtensionContext) {
+  context.subscriptions.push(
+    vscode.commands.registerCommand('json2yaml.toYAML', convertSelection(toYAML))
+  );
+  context.subscriptions.push(
+    vscode.commands.registerCommand('json2yaml.toJSON', convertSelection(toJSON))
+  );
+}
+
 export function deactivate() {
 }
