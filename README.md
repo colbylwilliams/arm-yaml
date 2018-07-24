@@ -10,4 +10,4 @@ Licensed under the MIT License.  See [LICENSE](License) for details.
 
 ----
 
-Made with :heart: by [Colby Williams](https://github.com/colbylwilliams) & [Michael Williams](https://github.com/flusharcade) _(mostly Mike)_
+Made with :heart: by [Colby Williams](https://github.com/colbylwilliams) & [Michael Williams](https://github.com/flusharcade)
