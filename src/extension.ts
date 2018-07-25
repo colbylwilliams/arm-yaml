@@ -1,74 +1,51 @@
-import * as vscode from 'vscode';
-const yaml = require('js-yaml');
+import { window, commands, Range, ExtensionContext } from 'vscode';
+import { ConversionManager } from "./ConversionManager";
 
-function getIndent() {
-  const editorCfg = vscode.workspace.getConfiguration('editor');
-  if (editorCfg && editorCfg.get('insertSpaces')) {
-    const tabSize = editorCfg.get('tabSize');
-    if (tabSize && typeof tabSize === 'number') {
-      return tabSize;
-    }
-  }
-  return 2;
-}
-
-function convertSelection(conversionFn) {
+// function updates editor text after conversion
+function updateActiveText(conversionFn: any) {
   return () => {
-    const editor = vscode.window.activeTextEditor;
+    // Get the current text editor
+    const editor = window.activeTextEditor;
     if (!editor) {
-      return;
+        return;
     }
-    editor.edit(edit => {
-      let textRange;
-      if (!editor.selection.isEmpty) {
-        textRange = new vscode.Range(editor.selection.start, editor.selection.end);
-      }
-      const text = editor.document.getText(textRange);
-      const newText = conversionFn(text);
-      if (newText) {
-        if (!textRange) {
-          textRange = new vscode.Range(
-            editor.document.positionAt(0),
-            editor.document.positionAt(text.length)
-          );
+
+    if (editor) {
+        editor.edit(edit => {
+        let textRange;
+        // if our editor text is not null, grab entire range
+        if (!editor.selection.isEmpty) {
+            textRange = new Range(editor.selection.start, editor.selection.end);
         }
-        edit.replace(textRange, newText);
-      }
-    });  
-  }
+
+        const text = editor.document.getText(textRange);
+        const converted = conversionFn(text);
+
+        // check our text conversion was successful, i.e. converted not null 
+        if (converted) {
+            if (!textRange) {
+            //  replace editor text with converted
+            textRange = new Range(
+                editor.document.positionAt(0),
+                editor.document.positionAt(text.length)
+            );
+            }
+
+            edit.replace(textRange, converted);
+        }
+      }); 
+    } 
+  };
 }
 
-export function toYAML(text) {
-  let json;
-  try {
-    json = JSON.parse(text);
-  } catch (e) {
-    vscode.window.showErrorMessage('Could not parse the selection as JSON.');
-    console.error(e);
-    return;
-  }
-  return yaml.safeDump(json, {indent: getIndent()});
-}
+export function activate(context: ExtensionContext) {
+  console.log('ARM_YAML extension');
 
-export function toJSON(text) {
-  let json;
-  try {
-    json = yaml.safeLoad(text, {schema: yaml.JSON_SCHEMA})
-  } catch (e) {
-    vscode.window.showErrorMessage('Could not parse the selection as YAML.');
-    console.error(e);
-    return;
-  }
-  return JSON.stringify(json, null, getIndent());
-}
+  // create a new word counter
+  let conversionManager = new ConversionManager(5);
 
-export function activate(context: vscode.ExtensionContext) {
-  context.subscriptions.push(
-    vscode.commands.registerCommand('json2yaml.toYAML', convertSelection(toYAML))
-  );
-  context.subscriptions.push(
-    vscode.commands.registerCommand('json2yaml.toJSON', convertSelection(toJSON))
-  );
+  context.subscriptions.push(commands.registerCommand('extension.toYAML', updateActiveText(conversionManager.toYAML)));
+  context.subscriptions.push(commands.registerCommand('extension.toJSON', updateActiveText(conversionManager.toJSON)));
 }
 
 export function deactivate() {
