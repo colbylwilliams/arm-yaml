@@ -1,53 +1,47 @@
 {
-  "name": "arm-yaml",
-  "displayName": "arm-yaml",
-  "description": "",
-  "version": "0.0.1",
-  "publisher": "Microsoft",
-  "engines": {
-    "vscode": "^1.25.0"
-  },
-  "categories": [
-    "Other"
-  ],
-  "keywords": [
-    "json",
-    "yaml",
-    "convert"
-  ],
-  "activationEvents": [
-    "onCommand:json2yaml.toYAML",
-    "onCommand:json2yaml.toJSON"
-  ],
-  "main": "./out/src/extension",
-  "contributes": {
-    "commands": [
-      {
-        "command": "json2yaml.toYAML",
-        "title": "Convert JSON to YAML"
-      },
-      {
-        "command": "json2yaml.toJSON",
-        "title": "Convert YAML to JSON"
-      }
-    ]
-  },
-  "scripts": {
-    "vscode:prepublish": "npm run compile",
-    "compile": "tsc -p ./",
-    "watch": "tsc -watch -p ./",
-    "postinstall": "node ./node_modules/vscode/bin/install",
-    "test": "npm run compile && node ./node_modules/vscode/bin/test"
-  },
-  "devDependencies": {
-    "typescript": "^2.6.1",
-    "vscode": "^1.1.6",
-    "tslint": "^5.8.0",
-    "vsce": "^1.15.0",
-    "@types/node": "^7.0.43",
-    "@types/mocha": "^2.2.42"
-  },
-  "dependencies": {
-    "js-yaml": "^3.5.5"
-  }
+    "name": "arm2yaml",
+    "displayName": "arm2yaml",
+    "description": "arm2yaml",
+    "version": "0.0.1",
+    "publisher": "arm2yaml",
+    "engines": {
+        "vscode": "^1.25.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onCommand:extension.toYAML",
+        "onCommand:extension.toJSON"
+    ],
+    "main": "./out/extension",
+    "contributes": {
+        "commands": [
+            {
+                "command": "extension.toYAML",
+                "title": "Convert JSON to YAML"
+            },
+            {
+                "command": "extension.toJSON",
+                "title": "Convert YAML to JSON"
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "npm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "test": "npm run compile && node ./node_modules/vscode/bin/test"
+    },
+    "devDependencies": {
+        "typescript": "^2.6.1",
+        "vscode": "^1.1.6",
+        "tslint": "^5.8.0",
+        "@types/node": "^7.0.43",
+        "@types/mocha": "^2.2.42"
+    },
+    "dependencies": {
+        "js-yaml": "^3.5.5"
+    }
 }
